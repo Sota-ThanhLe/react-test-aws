@@ -32,7 +32,8 @@
     "lint": "eslint src/**/*.{ts,tsx} --color --max-warnings=0",
     "format": "prettier --write .",
     "re-install": "rm -rf node_modules/ && rm -rf yarn.lock && yarn",
-    "deploy": "yarn run build-stg && serve -s build -l 10002"
+    "deploy": "yarn run build-stg && serve -s build -l 10002",
+    "prepare": "husky install"
   },
   "optionalDependencies": {
     "node-fetch": "^3.0.0"
@@ -41,6 +42,20 @@
     "extends": [
       "react-app/jest"
     ]
+  },
+  "lint-staged": {
+    "src/**/*.{ts,tsx}": [
+      "yarn lint"
+    ],
+    "./src/**": [
+      "yarn format"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
   },
   "browserslist": {
     "production": [
@@ -55,6 +70,8 @@
     ]
   },
   "devDependencies": {
+    "@commitlint/cli": "^17.0.0",
+    "@commitlint/config-conventional": "^17.0.0",
     "@typescript-eslint/eslint-plugin": "^5.25.0",
     "@typescript-eslint/parser": "^5.25.0",
     "assert": "^2.0.0",
@@ -70,6 +87,7 @@
     "eslint-plugin-react": "^7.30.0",
     "eslint-plugin-react-hooks": "^4.5.0",
     "https-browserify": "^1.0.0",
+    "husky": "^8.0.0",
     "lint-staged": "^12.4.1",
     "os-browserify": "^0.3.0",
     "postcss": "^8.4.13",
