@@ -13,6 +13,7 @@ jobs:
       - name: Build and Deploy
         run: |
           echo "Thanh Le "
-          cd /home/sotatek/test
-          pwd
-          ls
+          cd /home/sotatek/test/react-test-aws
+          git pull origin dev
+          yarn
+          pm2 restart deploy.json
