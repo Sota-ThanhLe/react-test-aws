@@ -16,4 +16,5 @@ jobs:
           cd /home/sotatek/test/react-test-aws
           git pull origin dev
           yarn
+          yarn build
           pm2 restart deploy.json
