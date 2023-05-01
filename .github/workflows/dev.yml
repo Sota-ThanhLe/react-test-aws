@@ -13,4 +13,4 @@ jobs:
       - name: Build and Deploy
         run: |
           echo "Thanh Le "
-          git pull origin dev
+          pwd
