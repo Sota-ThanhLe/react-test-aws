@@ -10,6 +10,8 @@ jobs:
     name: Deploy
     runs-on: self-hosted
     steps:
+      - name: Copy file
+        run: rsync -azh --exclude={.git,.github,.env,dist,node_modules,docker,public} --delete ./ ~/test/test1
       - name: Build and Deploy
         run: |
           echo "Thanh Le "
