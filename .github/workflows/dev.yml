@@ -16,3 +16,4 @@ jobs:
         run: |
           echo "Thanh Le "
           pwd
+          ls
