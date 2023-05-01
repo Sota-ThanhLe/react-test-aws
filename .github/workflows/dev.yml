@@ -1,0 +1,16 @@
+name: Test self hosted runner
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: self-hosted
+    steps:
+      - name: Build and Deploy
+        run: |
+          echo "Thanh Le "
+          git pull origin dev
