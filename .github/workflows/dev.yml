@@ -15,4 +15,6 @@ jobs:
           ls
           pwd
           echo "Thanh Le "
-          git pull origin dev
+          cd /home/xbot/react-test-aws
+          git pull origin master
+          yarn && yarn build
