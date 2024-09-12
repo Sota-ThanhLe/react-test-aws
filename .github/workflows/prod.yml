@@ -8,6 +8,13 @@ env:
   PROJECT_NAME: 'React Test AWS'
   PATH_PROJECT: '/home/xbot/react-test-aws'
   GOOGLE_CHAT_WEBHOOK: ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
+  SEND_TO_GOOGLE_CHAT: |
+    send_to_google_chat() {
+      local message="$1"
+      curl -X POST -H "Content-Type: application/json" \
+      -d "{\"text\": \"Project: ${PROJECT_NAME} - ${message}\"}" \
+      $GOOGLE_CHAT_WEBHOOK
+    }
 
 jobs:
   build-and-deploy:
@@ -30,6 +37,7 @@ jobs:
           COMMIT_URL="https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
           COMMIT_MESSAGE="${{ github.event.head_commit.message }}"
           COMMIT_AUTHOR="${{ github.actor }}"
+          eval "${SEND_TO_GOOGLE_CHAT}"
           send_to_google_chat "Project: ${PROJECT_NAME} - Author: ${COMMIT_AUTHOR}. Commit message: '${COMMIT_MESSAGE}'. Commit here: ${COMMIT_URL}"
 
       # Step 2: Checkout code from the repository
@@ -53,12 +61,14 @@ jobs:
       - name: Notify Google Chat - Build Success
         if: success()
         run: |
+          eval "${SEND_TO_GOOGLE_CHAT}"
           send_to_google_chat "Project: ${PROJECT_NAME} - Build successfully."
           
       # Step 6: Notify Google Chat - Build Failed
       - name: Notify Google Chat - Build Failed
         if: failure()
         run: |
+          eval "${SEND_TO_GOOGLE_CHAT}"
           send_to_google_chat "Project: ${PROJECT_NAME} - Build & Deploy failed. Please check the logs."
         continue-on-error: false
 
@@ -68,6 +78,7 @@ jobs:
         run: |
           cd $PATH_PROJECT
           pm2 restart deploy.json
+          eval "${SEND_TO_GOOGLE_CHAT}"
           send_to_google_chat "Project: ${PROJECT_NAME} - Deploy successfully."
 
 
