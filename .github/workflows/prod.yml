@@ -14,15 +14,23 @@ jobs:
     runs-on: self-hosted
 
     steps:
+      - name: Define send_to_google_chat function
+        run: |
+          send_to_google_chat() {
+            local message="$1"
+            curl -X POST -H "Content-Type: application/json" \
+            -d "{\"text\": \"${message}\"}" \
+            $GOOGLE_CHAT_WEBHOOK
+          }
+          export -f send_to_google_chat
+
       # Step 1: Notify Google Chat - Trigger Merge with commit info and project name
       - name: Notify Google Chat - Trigger Merge
         run: |
           COMMIT_URL="https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
           COMMIT_MESSAGE="${{ github.event.head_commit.message }}"
           COMMIT_AUTHOR="${{ github.actor }}"
-          curl -X POST -H "Content-Type: application/json" \
-          -d "{\"text\": \"Project: ${PROJECT_NAME} - Author: ${COMMIT_AUTHOR}. Commit message: '${COMMIT_MESSAGE}'. Commit here: (${COMMIT_URL}).\"}" \
-          $GOOGLE_CHAT_WEBHOOK
+          send_to_google_chat "Project: ${PROJECT_NAME} - Author: ${COMMIT_AUTHOR}. Commit message: '${COMMIT_MESSAGE}'. Commit here: ${COMMIT_URL}"
 
       # Step 2: Checkout code from the repository
       - name: Checkout code
@@ -45,17 +53,13 @@ jobs:
       - name: Notify Google Chat - Build Success
         if: success()
         run: |
-          curl -X POST -H "Content-Type: application/json" \
-          -d "{\"text\": \"Project: ${PROJECT_NAME} - Build successfully.!\"}" \
-          $GOOGLE_CHAT_WEBHOOK
+          send_to_google_chat "Project: ${PROJECT_NAME} - Build successfully."
           
       # Step 6: Notify Google Chat - Build Failed
       - name: Notify Google Chat - Build Failed
         if: failure()
         run: |
-          curl -X POST -H "Content-Type: application/json" \
-          -d "{\"text\": \"Project: ${PROJECT_NAME} - Build & Deploy failed. Please check the logs!\"}" \
-          $GOOGLE_CHAT_WEBHOOK
+          send_to_google_chat "Project: ${PROJECT_NAME} - Build & Deploy failed. Please check the logs."
         continue-on-error: false
 
       # Step 7: Deploy to Staging
@@ -64,8 +68,6 @@ jobs:
         run: |
           cd $PATH_PROJECT
           pm2 restart deploy.json
-          curl -X POST -H "Content-Type: application/json" \
-          -d "{\"text\": \"Project: ${PROJECT_NAME} - Deploy successfully.\"}" \
-          $GOOGLE_CHAT_WEBHOOK
+          send_to_google_chat "Project: ${PROJECT_NAME} - Deploy successfully."
 
 
