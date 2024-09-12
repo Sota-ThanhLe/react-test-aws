@@ -7,7 +7,6 @@ on:
 env:
   PROJECT_NAME: 'React Test AWS'
   PATH_PROJECT: '/home/xbot/react-test-aws'
-  GOOGLE_CHAT_WEBHOOK: 'https://chat.googleapis.com/v1/spaces/AAAAS0lkPa4/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=1zpesQKZyjY1_E8U6Bye1RHG5BIop4Hutt43xysAqHc'
 
 jobs:
   build-and-deploy:
@@ -22,7 +21,7 @@ jobs:
           COMMIT_AUTHOR="${{ github.actor }}"
           curl -X POST -H "Content-Type: application/json" \
           -d "{\"text\": \"Project: ${PROJECT_NAME}. Code has been merged into the staging branch by ${COMMIT_AUTHOR}. Commit message: '${COMMIT_MESSAGE}'. [View commit here](${COMMIT_URL}).\"}" \
-          $GOOGLE_CHAT_WEBHOOK
+          ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
 
       # Step 2: Checkout code from the repository
       - name: Checkout code
@@ -45,10 +44,6 @@ jobs:
       # Step 7: Notify Google Chat - Build Success
       - name: Notify Google Chat - Build Success
         if: success()
-        run: |
-          curl -X POST -H "Content-Type: application/json" \
-          -d "{\"text\": \"Project: ${PROJECT_NAME}. Build succeeded. Starting deployment...\"}" \
-          $GOOGLE_CHAT_WEBHOOK
 
       # Step 8: Deploy to Staging
       - name: Deploy to Staging
@@ -57,13 +52,13 @@ jobs:
           cd $PATH_PROJECT
           pm2 restart deploy.json
           curl -X POST -H "Content-Type: application/json" \
-          -d "{\"text\": \"Project: ${PROJECT_NAME}. Deploy successfully.\"}" \
-          $GOOGLE_CHAT_WEBHOOK
+          -d "{\"text\": \"Project: ${PROJECT_NAME}. Build & Deploy successfully.\"}" \
+          ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
 
       # Step 9: Notify Google Chat - Build Failed
       - name: Notify Google Chat - Build Failed
         if: failure()
         run: |
           curl -X POST -H "Content-Type: application/json" \
-          -d "{\"text\": \"Project: ${PROJECT_NAME}. Build failed. Please check the logs!\"}" \
-          $GOOGLE_CHAT_WEBHOOK
+          -d "{\"text\": \"Project: ${PROJECT_NAME}. Build & Deploy failed. Please check the logs!\"}" \
+          ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
