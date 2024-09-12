@@ -21,7 +21,7 @@ jobs:
           COMMIT_MESSAGE="${{ github.event.head_commit.message }}"
           COMMIT_AUTHOR="${{ github.actor }}"
           curl -X POST -H "Content-Type: application/json" \
-          -d "{\"text\": \"Project: ${PROJECT_NAME} - Author: ${COMMIT_AUTHOR}. Commit message: '${COMMIT_MESSAGE}'. [View commit here](${COMMIT_URL}).\"}" \
+          -d "{\"text\": \"Project: ${PROJECT_NAME} - Author: ${COMMIT_AUTHOR}. Commit message: '${COMMIT_MESSAGE}'. Commit here: (${COMMIT_URL}).\"}" \
           $GOOGLE_CHAT_WEBHOOK
 
       # Step 2: Checkout code from the repository
