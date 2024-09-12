@@ -3,7 +3,7 @@ name: Test self hosted runner
 on:
   push:
     branches:
-      - dev
+      - master
 
 jobs:
   deploy:
