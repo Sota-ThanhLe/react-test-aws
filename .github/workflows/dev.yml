@@ -12,5 +12,7 @@ jobs:
     steps:
       - name: Build and Deploy
         run: |
+          ls
+          pwd
           echo "Thanh Le "
           git pull origin dev
