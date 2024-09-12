@@ -23,7 +23,6 @@ jobs:
 
       # Step 2: Checkout code from the repository
       - name: Checkout code
-        uses: actions/checkout@v2
         run: |
           git checkout master
           git pull origin master
