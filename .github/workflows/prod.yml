@@ -22,7 +22,7 @@ jobs:
           COMMIT_AUTHOR="${{ github.actor }}"
           curl -X POST -H "Content-Type: application/json" \
           -d "{\"text\": \"Project: ${PROJECT_NAME} - Author: ${COMMIT_AUTHOR}. Commit message: '${COMMIT_MESSAGE}'. [View commit here](${COMMIT_URL}).\"}" \
-          ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
+          $GOOGLE_CHAT_WEBHOOK
 
       # Step 2: Checkout code from the repository
       - name: Checkout code
@@ -47,7 +47,7 @@ jobs:
         run: |
           curl -X POST -H "Content-Type: application/json" \
           -d "{\"text\": \"Project: ${PROJECT_NAME} - Build successfully.!\"}" \
-          ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
+          $GOOGLE_CHAT_WEBHOOK
           
       # Step 6: Notify Google Chat - Build Failed
       - name: Notify Google Chat - Build Failed
@@ -55,7 +55,7 @@ jobs:
         run: |
           curl -X POST -H "Content-Type: application/json" \
           -d "{\"text\": \"Project: ${PROJECT_NAME} - Build & Deploy failed. Please check the logs!\"}" \
-          ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
+          $GOOGLE_CHAT_WEBHOOK
         continue-on-error: false
 
       # Step 7: Deploy to Staging
@@ -66,6 +66,6 @@ jobs:
           pm2 restart deploy.json
           curl -X POST -H "Content-Type: application/json" \
           -d "{\"text\": \"Project: ${PROJECT_NAME} - Deploy successfully.\"}" \
-          ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
+          $GOOGLE_CHAT_WEBHOOK
 
 
