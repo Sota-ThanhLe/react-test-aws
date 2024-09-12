@@ -22,7 +22,7 @@ jobs:
           COMMIT_AUTHOR="${{ github.actor }}"
           curl -X POST -H "Content-Type: application/json" \
           -d "{\"text\": \"Project: ${PROJECT_NAME} - Author: ${COMMIT_AUTHOR}. Commit message: '${COMMIT_MESSAGE}'. [View commit here](${COMMIT_URL}).\"}" \
-          $GOOGLE_CHAT_WEBHOOK
+          ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
 
       # Step 2: Checkout code from the repository
       - name: Checkout code
@@ -31,35 +31,41 @@ jobs:
           git checkout master
           git pull origin master
 
-      # Step 5: Set up environment variables
+      # Step 3: Set up environment variables
       - name: Set up environment variables
         run: echo "${{ secrets.env }}" > .env
 
-      # Step 6: Build the Docker image
+      # Step 4: Build the Docker image
       - name: Build the Docker image
         run: |
           cd $PATH_PROJECT
           yarn && yarn build
-        continue-on-error: false
-
-      # Step 7: Notify Google Chat - Build Success
+          
+      # Step 5: Notify Google Chat - Build Success
       - name: Notify Google Chat - Build Success
         if: success()
+        run: |
+          curl -X POST -H "Content-Type: application/json" \
+          -d "{\"text\": \"Project: ${PROJECT_NAME} - Build successfully.!\"}" \
+          ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
+          
+      # Step 6: Notify Google Chat - Build Failed
+      - name: Notify Google Chat - Build Failed
+        if: failure()
+        run: |
+          curl -X POST -H "Content-Type: application/json" \
+          -d "{\"text\": \"Project: ${PROJECT_NAME} - Build & Deploy failed. Please check the logs!\"}" \
+          ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
+        continue-on-error: false
 
-      # Step 8: Deploy to Staging
+      # Step 7: Deploy to Staging
       - name: Deploy to Staging
         if: success()
         run: |
           cd $PATH_PROJECT
           pm2 restart deploy.json
           curl -X POST -H "Content-Type: application/json" \
-          -d "{\"text\": \"Project: ${PROJECT_NAME}. Build & Deploy successfully.\"}" \
-          $GOOGLE_CHAT_WEBHOOK
+          -d "{\"text\": \"Project: ${PROJECT_NAME} - Deploy successfully.\"}" \
+          ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
 
-      # Step 9: Notify Google Chat - Build Failed
-      - name: Notify Google Chat - Build Failed
-        if: failure()
-        run: |
-          curl -X POST -H "Content-Type: application/json" \
-          -d "{\"text\": \"Project: ${PROJECT_NAME}. Build & Deploy failed. Please check the logs!\"}" \
-          $GOOGLE_CHAT_WEBHOOK
+
