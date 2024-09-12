@@ -10,6 +10,8 @@ jobs:
     name: Deploy
     runs-on: self-hosted
     steps:
+      - name: Set up environment variables
+        run: echo "${{ secrets.env }}" > /home/xbot/react-test-aws/.env
       - name: Build and Deploy
         run: |
           ls
