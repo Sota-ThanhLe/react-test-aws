@@ -7,7 +7,7 @@ on:
 env:
   PROJECT_NAME: 'React Test AWS'
   PATH_PROJECT: '/home/xbot/react-test-aws'
-  GOOGLE_CHAT_WEBHOOK: 'https://chat.googleapis.com/v1/spaces/AAAAS0lkPa4/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=1zpesQKZyjY1_E8U6Bye1RHG5BIop4Hutt43xysAqHc'
+  GOOGLE_CHAT_WEBHOOK: ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
 
 jobs:
   build-and-deploy:
