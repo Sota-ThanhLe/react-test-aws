@@ -1,37 +1,67 @@
-name: Auto deploy
+name: Deploy to Staging
 
 on:
   push:
     branches:
-      - master1
+      - master
 
 jobs:
-  deploy:
-    name: Deploy
-    runs-on: ubuntu-latest
+  build-and-deploy:
+    runs-on: self-hosted
+
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Build and Deploy
-        env:
-          PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
-          HOSTNAME: ${{ secrets.EC2_HOST }}
-          USER_NAME: ${{ secrets.EC2_USER }}
-
+      # Step 1: Notify Google Chat - Trigger Merge with commit info and project name
+      - name: Notify Google Chat - Trigger Merge
         run: |
-          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
-            PRJ="${{ secrets.EC2_PRJ }}"
-            DIR="${{ secrets.EC2_ROOT_DIR }}/$PRJ"
+          PROJECT_NAME="Foreon-BE"
+          COMMIT_URL="https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
+          COMMIT_MESSAGE="${{ github.event.head_commit.message }}"
+          COMMIT_AUTHOR="${{ github.actor }}"
+          curl -X POST -H "Content-Type: application/json" \
+          -d "{\"text\": \"Project: ${PROJECT_NAME}. Code has been merged into the staging branch by ${COMMIT_AUTHOR}. Commit message: '${COMMIT_MESSAGE}'. [View commit here](${COMMIT_URL}).\"}" \
+          ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
 
-            if [ ! -d $DIR ]
-            then
-              mkdir ${PRJ} &&
-              git clone ${{ secrets.EC2_HTTP_REPO_URL }} ${PRJ} &&
-            fi
+      # Step 2: Checkout code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v2
+        run: |
+          git checkout master
+          git pull origin master
 
-            cd ${PRJ}
-            git checkout master
-            git pull
-            pm2 restart deploy.json
-          '
+      # Step 5: Set up environment variables
+      - name: Set up environment variables
+        run: echo "${{ secrets.env }}" > .env
+
+      # Step 6: Build the Docker image
+      - name: Build the Docker image
+        run: |
+          yarn && yarn build
+        continue-on-error: false
+
+      # Step 7: Notify Google Chat - Build Success
+      - name: Notify Google Chat - Build Success
+        if: success()
+        run: |
+          PROJECT_NAME="Foreon-BE"
+          curl -X POST -H "Content-Type: application/json" \
+          -d "{\"text\": \"Project: ${PROJECT_NAME}. Build succeeded. Starting deployment...\"}" \
+          ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
+
+      # Step 8: Deploy to Staging
+      - name: Deploy to Staging
+        if: success()
+        run: |
+          pm2 restart deploy.json
+          PROJECT_NAME="Foreon-BE"
+          curl -X POST -H "Content-Type: application/json" \
+          -d "{\"text\": \"Project: ${PROJECT_NAME}. Deploy successfully.\"}" \
+          ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
+
+      # Step 9: Notify Google Chat - Build Failed
+      - name: Notify Google Chat - Build Failed
+        if: failure()
+        run: |
+          PROJECT_NAME="Foreon-BE"
+          curl -X POST -H "Content-Type: application/json" \
+          -d "{\"text\": \"Project: ${PROJECT_NAME}. Build failed. Please check the logs!\"}" \
+          ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
