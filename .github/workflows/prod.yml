@@ -6,7 +6,7 @@ on:
       - master
 env:
   PROJECT_NAME: 'React Test AWS'
-  PATH_PROJECT: '~/home/sotatek/react/react-test-aws'
+  PATH_PROJECT: '/home/sotatek/react/react-test-aws'
   GOOGLE_CHAT_WEBHOOK: ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
   SEND_TO_GOOGLE_CHAT: |
     send_to_google_chat() {
