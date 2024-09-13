@@ -21,21 +21,6 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - name: Define send_to_google_chat function
-        run: |
-          pwd
-          ls
-          cd $PATH_PROJECT
-          ls
-          pwd
-          send_to_google_chat() {
-            local message="$1"
-            curl -X POST -H "Content-Type: application/json" \
-            -d "{\"text\": \"${message}\"}" \
-            $GOOGLE_CHAT_WEBHOOK
-          }
-          export -f send_to_google_chat
-
       # Step 1: Notify Google Chat - Trigger Merge with commit info and project name
       - name: Notify Google Chat - Trigger Merge
         run: |
