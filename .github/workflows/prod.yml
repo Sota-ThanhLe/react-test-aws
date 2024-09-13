@@ -23,6 +23,8 @@ jobs:
     steps:
       - name: Define send_to_google_chat function
         run: |
+          pwd
+          ls
           send_to_google_chat() {
             local message="$1"
             curl -X POST -H "Content-Type: application/json" \
