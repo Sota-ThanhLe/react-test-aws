@@ -6,7 +6,7 @@ on:
       - master
 env:
   PROJECT_NAME: 'React Test AWS'
-  PATH_PROJECT: '/home/xbot/react-test-aws'
+  PATH_PROJECT: '~/home/sotatek/react/react-test-aws'
   GOOGLE_CHAT_WEBHOOK: ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
   SEND_TO_GOOGLE_CHAT: |
     send_to_google_chat() {
@@ -25,6 +25,9 @@ jobs:
         run: |
           pwd
           ls
+          cd $PATH_PROJECT
+          ls
+          pwd
           send_to_google_chat() {
             local message="$1"
             curl -X POST -H "Content-Type: application/json" \
